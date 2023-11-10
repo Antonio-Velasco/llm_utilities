@@ -110,19 +110,19 @@ def extract_unstructured_from_document(text, system, json_template):
     return extract_unstructured(text, system, json_template)
 
 
-def get_text_and_eowr_file(uploaded_file, url):
+def get_text_and_file(uploaded_file, url):
     if url:
-        eowr_file = unquote(Path(urlparse(url).path).name)
+        file = unquote(Path(urlparse(url).path).name)
         text = process_url(url)
         pdf_pages = []
     elif is_pdf(uploaded_file):
-        eowr_file = uploaded_file.name
+        file = uploaded_file.name
         text, pdf_pages = process_pdf(uploaded_file)
     else:
-        eowr_file = uploaded_file.name
+        file = uploaded_file.name
         text = uploaded_file.getvalue().decode()
         pdf_pages = []
-    return eowr_file, text, pdf_pages
+    return file, text, pdf_pages
 
 
 """
@@ -183,7 +183,7 @@ import pandas as pd
 if st.button("Process", type="primary"):
     with st.spinner("Extracting fields ..."):
 
-        summary_file, text, pdf_pages = get_text_and_eowr_file(uploaded_file,
+        summary_file, text, pdf_pages = get_text_and_file(uploaded_file,
                                                                url
                                                                )
 
