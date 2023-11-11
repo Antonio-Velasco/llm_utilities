@@ -13,6 +13,9 @@ llama-index = "*"
 pypdf = "*"
 sentence-transformers = "*"
 chromadb = "*"
+streamlit = "*"
+bs4 = "*"
+pypdf4 = "*"
 
 [dev-packages]
 

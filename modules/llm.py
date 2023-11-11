@@ -11,6 +11,8 @@ from llama_index.node_parser import SimpleNodeParser
 from llama_index import Document
 from llama_index import LLMPredictor
 from langchain.chat_models import ChatOpenAI
+from langchain.embeddings import SentenceTransformerEmbeddings
+from langchain.vectorstores import Chroma
 
 import pandas as pd
 import json
@@ -22,24 +24,52 @@ import re
 ######################################
 
 
-def extract_unstructured(extracted_text, system, json_template):
+def extract_unstructured(pages, system, json_template):
+    # create the open-source embedding function
+    embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+    # load it into Chroma
+    db = Chroma.from_documents(pages, embedding_function)
 
-    documents = [Document(text=extracted_text["content"])]
+    llm_src = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
 
-    node_parser = SimpleNodeParser.from_defaults(chunk_size=4096,
-                                                 chunk_overlap=200)
-                                                 
-    llm = ChatOpenAI(temperature=0, max_tokens=512)
-    llm_predictor = LLMPredictor(llm=llm)
-    service_context = ServiceContext.from_defaults(node_parser=node_parser,
-                                                   llm_predictor=llm_predictor)
+    qa_chain = create_qa_with_sources_chain(llm_src)
 
-    index = VectorStoreIndex.from_documents(documents,
-                                            service_context=service_context)
-    query_engine = index.as_query_engine()
-    response = query_engine.query(system)
+    doc_prompt = PromptTemplate(
+        template="Content: {page_content}\n Source: {source} - page {page}", # look at the prompt does have page#
+        input_variables=["page_content", "source", "page"],
+    )
+
+    final_qa_chain = StuffDocumentsChain(
+        llm_chain=qa_chain, 
+        document_variable_name='context',
+        document_prompt=doc_prompt,
+    )
+    retrieval_qa = RetrievalQA(
+        retriever=db.as_retriever(),
+        combine_documents_chain=final_qa_chain
+    )
+    response = retrieval_qa.run(query)
 
     return response.response
+
+# def extract_unstructured(extracted_text, system, json_template):
+
+#     documents = [Document(text=extracted_text["content"])]
+
+#     node_parser = SimpleNodeParser.from_defaults(chunk_size=4096,
+#                                                  chunk_overlap=200)
+                                                 
+#     llm = ChatOpenAI(temperature=0, max_tokens=512)
+#     llm_predictor = LLMPredictor(llm=llm)
+#     service_context = ServiceContext.from_defaults(node_parser=node_parser,
+#                                                    llm_predictor=llm_predictor)
+
+#     index = VectorStoreIndex.from_documents(documents,
+#                                             service_context=service_context)
+#     query_engine = index.as_query_engine()
+#     response = query_engine.query(system)
+
+#     return response.response
 
 
 ######################################
