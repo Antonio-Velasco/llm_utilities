@@ -2,6 +2,8 @@ from langchain import OpenAI, PromptTemplate, LLMChain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.combine_documents.map_reduce import MapReduceDocumentsChain  # noqa E501
 from langchain.chains.combine_documents.stuff import StuffDocumentsChain
+from langchain.chains import create_qa_with_sources_chain, RetrievalQA
+
 import itertools as it
 from langchain.callbacks import get_openai_callback
 
@@ -35,8 +37,8 @@ def extract_unstructured(pages, system, json_template):
     qa_chain = create_qa_with_sources_chain(llm_src)
 
     doc_prompt = PromptTemplate(
-        template="Content: {page_content}\n Source: {source} - page {page}", # look at the prompt does have page#
-        input_variables=["page_content", "source", "page"],
+        template="Content: {page_content}\n source: {source}", # look at the prompt does have page#
+        input_variables=["page_content", "source"],
     )
 
     final_qa_chain = StuffDocumentsChain(
@@ -48,9 +50,9 @@ def extract_unstructured(pages, system, json_template):
         retriever=db.as_retriever(),
         combine_documents_chain=final_qa_chain
     )
-    response = retrieval_qa.run(query)
+    response = retrieval_qa.run(system)
 
-    return response.response
+    return response
 
 # def extract_unstructured(extracted_text, system, json_template):
 

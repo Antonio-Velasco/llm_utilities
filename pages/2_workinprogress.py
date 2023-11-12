@@ -12,11 +12,11 @@ import base64
 from azure.core.credentials import AzureKeyCredential  # noqa E402
 from azure.ai.formrecognizer import DocumentAnalysisClient  # noqa E402
 
-from PyPDF4 import PdfFileReader
-from langchain.document_loaders import OnlinePDFLoader
+from PyPDF4 import PdfFileReader, PdfFileWriter
 
 from modules.llm import extract_unstructured
 from modules.state import read_url_param_values
+from langchain.schema.document import Document
 
 import os
 import io
@@ -41,9 +41,20 @@ def configuration():
 configuration()
 json_template = {}
 
-def display_pdf(file):
+def display_pdf(file, source_pages):
+
+    inputpdf = PdfFileReader(file)
+    output = PdfFileWriter()
+
+    with pdfplumber.open(file) as pdf:
+        for page in source_pages:
+            output.addPage(inputpdf.pages[int(page)])
+
+    output_bytesio = io.BytesIO()
+    output.write(output_bytesio)
+
     # Encode the data into base64
-    base64_pdf = base64.b64encode(file.getvalue()).decode("utf-8")
+    base64_pdf = base64.b64encode(output_bytesio.getvalue()).decode("utf-8")
 
     # Create the HTML tag
     pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="700" height="1000" type="application/pdf">'  # noqa E501
@@ -65,13 +76,18 @@ def base_form_recogniser(pdf_bytes: io.BytesIO) -> dict:
 
     # Get the result
     result = poller.result()
-    data = result.to_dict()
-    return data
+    return result
 
 
 def extract_text(file):
-    loader = OnlinePDFLoader(file)
-    pages = loader.load_and_split()
+    result = base_form_recogniser(file)
+    
+    pages = []
+    for page in result.pages:
+        doc_with_metadata = Document(page_content=("\n".join([line.content for line in page.lines])),
+                                     metadata={"source": f"{page.page_number}"})
+        pages.append(doc_with_metadata)
+
     return pages
 
 
@@ -96,8 +112,8 @@ def process_url(url):
 
 
 @st.cache_data()
-def extract_unstructured_from_document(text, system, json_template):
-    return extract_unstructured(text, system, json_template)
+def extract_unstructured_from_document(_pages, system, json_template):
+    return extract_unstructured(_pages, system, json_template)
 
 
 def get_text_and_file(uploaded_file, url):
@@ -158,16 +174,8 @@ if is_pdf(uploaded_file):
         with cols[2]: field_descriptions.append("<" + st.text_input(f'Field Description {i+1} (Optional)', "", key=f"desc_input_{i}") + ">")
 
 
-    json_template = json.dumps({"Results": [dict(zip(field_names, field_descriptions))]})
+    fields_dictionary = dict(zip(field_names, field_descriptions))
 
-
-system = f"""
-You are an assistant that given a text extracted using OCR from a document will extract user provided data fields.
-Fields can have multiple formats.
-Write your output as a JSON with an entry with the format {json_template} per each test you find.
-If there is a field that you can not find, set it a null.
-If there is any additional information of feedback from the infromation extraction, add a {{"notes": "<additional-information>"}}
-"""   # noqa E501
 
 import pandas as pd
 
@@ -183,12 +191,29 @@ if st.button("Process", type="primary"):
         ### Extraction result
         """
 
+        fields = []
+        responses = []
+        source_pages = []
+        for field in fields_dictionary:
+            json_template = json.dumps(dict(zip([field], ["<Extracted answer>"])))
+            system = f"""
+            You are an assistant tasked with extracting data from documents.
+            Given a text extracted using OCR from a document, you will extract the field: {field}.
+            User optionally provided description of <{field}> is {fields_dictionary[field]}.
+            Be concise and report only relevant information.
+            If you can't find the asked information, write <null>.
+            Report the page number as the Source.
+            """   # noqa E501
 
-        response = extract_unstructured_from_document(text, system, json_template)
+            response = extract_unstructured_from_document(pdf_pages, system, json_template)
+            
+            # Extract the dict from the results key
+            fields.append(field)
+            responses.append(json.loads(response)["answer"])
+            if json.loads(response)["sources"] and json.loads(response)["sources"] != "null":
+                source_pages.append(*json.loads(response)["sources"])
+        results = dict(zip(fields, responses))
         
-        # Extract the dict from the results key
-        results = json.loads(response)["Results"][0]
-
         # Create a list of tuples from the dict items
         tuples = list(results.items())
 
@@ -197,11 +222,8 @@ if st.button("Process", type="primary"):
 
         st.dataframe(df)
 
-        st.json(response)
-
-
         """
         ### Relevant pages
         """
 
-        display_pdf(pdf_pages)
+        display_pdf(uploaded_file, source_pages)
