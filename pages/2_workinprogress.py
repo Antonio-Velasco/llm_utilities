@@ -48,7 +48,8 @@ def display_pdf(file, source_pages):
 
     with pdfplumber.open(file) as pdf:
         for page in source_pages:
-            output.addPage(inputpdf.pages[int(page)])
+            if page[0] != "null":
+                output.addPage(inputpdf.pages[int(*page)-1])
 
     output_bytesio = io.BytesIO()
     output.write(output_bytesio)
@@ -200,9 +201,9 @@ if st.button("Process", type="primary"):
             You are an assistant tasked with extracting data from documents.
             Given a text extracted using OCR from a document, you will extract the field: {field}.
             User optionally provided description of <{field}> is {fields_dictionary[field]}.
-            Be concise and report only relevant information.
-            If you can't find the asked information, write <null>.
-            Report the page number as the Source.
+            Be concise and refrain from introducing the answer.
+            If you can't find the field, report only null.
+            Report the page number as the Source with just the number.
             """   # noqa E501
 
             response = extract_unstructured_from_document(pdf_pages, system, json_template)
@@ -211,7 +212,7 @@ if st.button("Process", type="primary"):
             fields.append(field)
             responses.append(json.loads(response)["answer"])
             if json.loads(response)["sources"] and json.loads(response)["sources"] != "null":
-                source_pages.append(*json.loads(response)["sources"])
+                source_pages.append([n for n in json.loads(response)["sources"]])
         results = dict(zip(fields, responses))
         
         # Create a list of tuples from the dict items
@@ -222,8 +223,8 @@ if st.button("Process", type="primary"):
 
         st.dataframe(df)
 
+        st.write(source_pages)
         """
         ### Relevant pages
         """
-
         display_pdf(uploaded_file, source_pages)

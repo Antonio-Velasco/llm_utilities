@@ -32,7 +32,7 @@ def extract_unstructured(pages, system, json_template):
     # load it into Chroma
     db = Chroma.from_documents(pages, embedding_function)
 
-    llm_src = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
+    llm_src = ChatOpenAI(temperature=0, model="gpt-4")
 
     qa_chain = create_qa_with_sources_chain(llm_src)
 
