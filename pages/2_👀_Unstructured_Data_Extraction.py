@@ -109,6 +109,8 @@ def process_url(url):
 def extract_unstructured_from_document(text, system, json_template):
     return extract_unstructured(text, system, json_template)
 
+def convert_df(df):
+    return df.to_csv(index=False).encode('utf-8')
 
 def get_text_and_file(uploaded_file, url):
     if url:
@@ -169,11 +171,10 @@ if is_pdf(uploaded_file):
 
     json_template = json.dumps({"Results": [dict(zip(field_names, field_descriptions))]})
 
-
 system = f"""
 You are an assistant that given a text extracted using OCR from a document will extract user provided data fields.
 Fields can have multiple formats.
-Write your output as a JSON with an entry with the format {json_template} per each test you find.
+Write your output as a JSON with the format {json_template}.
 If there is a field that you can not find, set it a null.
 If there is any additional information of feedback from the infromation extraction, add a {{"notes": "<additional-information>"}}
 """   # noqa E501
@@ -192,9 +193,8 @@ if st.button("Process", type="primary"):
         ### Extraction result
         """
 
-
         response = extract_unstructured_from_document(text, system, json_template)
-        
+
         # Extract the dict from the results key
         results = json.loads(response)["Results"][0]
 
@@ -208,9 +208,9 @@ if st.button("Process", type="primary"):
 
         st.json(response)
 
+        csv = convert_df(df)
 
-        """
-        ### Relevant pages
-        """
-
-        display_pdf(pdf_pages)
+        st.download_button("Press to Download extracted fields",
+                    csv,
+                    f"{summary_file}-extracted-fields.csv"
+                    )
