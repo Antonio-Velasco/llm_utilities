@@ -14,7 +14,7 @@ from azure.ai.formrecognizer import DocumentAnalysisClient  # noqa E402
 
 from PyPDF4 import PdfFileReader, PdfFileWriter
 
-from modules.llm import extract_unstructured
+from modules.llm import document_queries
 from modules.state import read_url_param_values
 from langchain.schema.document import Document
 
@@ -86,7 +86,7 @@ def extract_text(file):
     pages = []
     for page in result.pages:
         doc_with_metadata = Document(page_content=("\n".join([line.content for line in page.lines])),
-                                     metadata={"source": f"{page.page_number}"})
+                                     metadata={"page": f"{page.page_number}"})
         pages.append(doc_with_metadata)
 
     return pages
@@ -113,8 +113,8 @@ def process_url(url):
 
 
 @st.cache_data()
-def extract_unstructured_from_document(_pages, system, json_template):
-    return extract_unstructured(_pages, system, json_template)
+def query_from_document(_pages, query):
+    return document_queries(_pages, query)
 
 
 def get_text_and_file(uploaded_file, url):
@@ -163,68 +163,33 @@ if is_pdf(uploaded_file):
                  )
 
 
-    cols = st.columns((0.7,1,2))
-    with cols[0]: 
-        number_inputs = st.number_input("Fields Number:", step=1, min_value=1)
-    st.write("Number of fields", number_inputs)
+"""
+### Query
+"""
 
-    field_names = []
-    field_descriptions = []
-    for i in range (number_inputs):
-        with cols[1]: field_names.append(st.text_input(f'Target field {i+1}', "", key=f"field_input_{i}"))
-        with cols[2]: field_descriptions.append("<" + st.text_input(f'Field Description {i+1} (Optional)', "", key=f"desc_input_{i}") + ">")
+query = st.text_input("Ask anything about the document", "")
 
+if query:
+    if st.button("Ask document", type="primary"):
+        with st.spinner("Thinking ..."):
 
-    fields_dictionary = dict(zip(field_names, field_descriptions))
+            summary_file, text, pdf_pages = get_text_and_file(uploaded_file,
+                                                                url
+                                                                )
 
+            response = query_from_document(pdf_pages, query)
+                
+            """
+            ### Answer
+            """
 
-import pandas as pd
-
-if st.button("Process", type="primary"):
-    with st.spinner("Extracting fields ..."):
-
-        summary_file, text, pdf_pages = get_text_and_file(uploaded_file,
-                                                               url
-                                                               )
-
-
-        """
-        ### Extraction result
-        """
-
-        fields = []
-        responses = []
-        source_pages = []
-        for field in fields_dictionary:
-            json_template = json.dumps(dict(zip([field], ["<Extracted answer>"])))
-            system = f"""
-            You are an assistant tasked with extracting data from documents.
-            Given a text extracted using OCR from a document, you will extract the field: {field}.
-            User optionally provided description of <{field}> is {fields_dictionary[field]}.
-            Be concise and refrain from introducing the answer.
-            If you can't find the field, report only null.
-            Report the page number as the Source with just the number.
-            """   # noqa E501
-
-            response = extract_unstructured_from_document(pdf_pages, system, json_template)
+            result = json.loads(response)["answer"]
+            source_pages = json.loads(response)["sources"][0]
             
-            # Extract the dict from the results key
-            fields.append(field)
-            responses.append(json.loads(response)["answer"])
-            if json.loads(response)["sources"] and json.loads(response)["sources"] != "null":
-                source_pages.append([n for n in json.loads(response)["sources"]])
-        results = dict(zip(fields, responses))
-        
-        # Create a list of tuples from the dict items
-        tuples = list(results.items())
-
-        # Create a dataframe from the list of tuples
-        df = pd.DataFrame(tuples, columns=["Field", "Content"])
-
-        st.dataframe(df)
-
-        st.write(source_pages)
-        """
-        ### Relevant pages
-        """
-        display_pdf(uploaded_file, source_pages)
+            st.write(result)
+            """
+            ### Source pages
+            """
+            
+            st.write(f"Answer provided based on information found in pages: {source_pages}")
+            display_pdf(uploaded_file, source_pages)

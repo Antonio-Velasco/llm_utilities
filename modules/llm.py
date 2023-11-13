@@ -22,37 +22,53 @@ import re
 
 
 ######################################
-#### Unstructured Data Extraction ####
+########### Document Query ###########
 ######################################
 
 
-# def extract_unstructured(pages, system, json_template):
-#     # create the open-source embedding function
-#     embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
-#     # load it into Chroma
-#     db = Chroma.from_documents(pages, embedding_function)
+def document_queries(pages, query):
 
-#     llm_src = ChatOpenAI(temperature=0, model="gpt-4")
+    system = f"""
+    You are a helpfull assitant tasked with answering user queries about a provided document.
+    Try to be concise and provide all the information available.
+    When adding the source page, answer with just the number.
+    User query:
+    ###
+    {query}
+    ###
+    """
+    # create the open-source embedding function
+    embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+    # load it into Chroma
+    db = Chroma.from_documents(pages, embedding_function)
 
-#     qa_chain = create_qa_with_sources_chain(llm_src)
+    llm_src = ChatOpenAI(temperature=0, model="gpt-4")
 
-#     doc_prompt = PromptTemplate(
-#         template="Content: {page_content}\n source: {source}", # look at the prompt does have page#
-#         input_variables=["page_content", "source"],
-#     )
+    qa_chain = create_qa_with_sources_chain(llm_src)
 
-#     final_qa_chain = StuffDocumentsChain(
-#         llm_chain=qa_chain, 
-#         document_variable_name='context',
-#         document_prompt=doc_prompt,
-#     )
-#     retrieval_qa = RetrievalQA(
-#         retriever=db.as_retriever(),
-#         combine_documents_chain=final_qa_chain
-#     )
-#     response = retrieval_qa.run(system)
+    doc_prompt = PromptTemplate(
+        template="Content: {page_content}\n Source page: {page}", # look at the prompt does have page#
+        input_variables=["page_content", "page"],
+    )
 
-#     return response
+    final_qa_chain = StuffDocumentsChain(
+        llm_chain=qa_chain, 
+        document_variable_name='context',
+        document_prompt=doc_prompt,
+    )
+    retrieval_qa = RetrievalQA(
+        retriever=db.as_retriever(),
+        combine_documents_chain=final_qa_chain
+    )
+    response = retrieval_qa.run(system)
+
+    return response
+
+
+######################################
+#### Unstructured Data Extraction ####
+######################################
+
 
 def extract_unstructured(extracted_text, system, json_template):
 
