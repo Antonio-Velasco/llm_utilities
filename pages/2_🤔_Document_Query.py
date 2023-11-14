@@ -182,14 +182,14 @@ if query:
             """
             ### Answer
             """
-
-            result = json.loads(response)["answer"]
-            source_pages = json.loads(response)["sources"][0]
-            
+            result = json.loads(response)["answer"]            
             st.write(result)
-            """
-            ### Source pages
-            """
-            
-            st.write(f"Answer provided based on information found in pages: {source_pages}")
-            display_pdf(uploaded_file, source_pages)
+
+
+            if json.loads(response)["sources"]:
+                """
+                ### Source pages
+                """
+                source_pages = json.loads(response)["sources"][0]
+                st.write(f"Answer provided based on information found in pages: {source_pages}")
+                display_pdf(uploaded_file, source_pages)
