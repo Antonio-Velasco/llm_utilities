@@ -3,7 +3,7 @@ from urllib.parse import unquote, urlparse
 import requests
 from bs4 import BeautifulSoup
 import streamlit as st
-
+import pandas as pd
 import pdfplumber
 from PyPDF4 import PdfFileWriter, PdfFileReader
 
@@ -13,7 +13,7 @@ import base64
 from azure.core.credentials import AzureKeyCredential  # noqa E402
 from azure.ai.formrecognizer import DocumentAnalysisClient  # noqa E402
 
-from modules.llm import extract_unstructured
+from modules.llm import extract_unstructured, automatic_extract_unstructured
 from modules.state import read_url_param_values
 
 import os
@@ -109,8 +109,15 @@ def process_url(url):
 def extract_unstructured_from_document(text, system, json_template):
     return extract_unstructured(text, system, json_template)
 
+
+@st.cache_data()
+def extract_unstructured_from_document(text):
+    return automatic_extract_unstructured(text)
+
+
 def convert_df(df):
     return df.to_csv(index=False).encode('utf-8')
+
 
 def get_text_and_file(uploaded_file, url):
     if url:
@@ -156,6 +163,43 @@ if is_pdf(uploaded_file):
                 "Try to remove common footers and headers"
                  )
 
+on = st.toggle("Automatic Field Identification")
+
+if on:
+    st.write("Relevant fields will be automatically extracted")
+
+    if st.button("Process", type="primary"):
+        with st.spinner("Extracting data ..."):
+            summary_file, text, pdf_pages = get_text_and_file(uploaded_file,
+                                                               url
+                                                               )
+            """
+            ### Extraction result
+            """
+
+            response = extract_unstructured_from_document(text)
+
+            # Extract the dict from the results key
+            results = json.loads(response)["Results"]
+
+            # Create a list of tuples from the dict items
+            tuples = list(results.items())
+
+            # Create a dataframe from the list of tuples
+            df = pd.DataFrame(tuples, columns=["Field", "Content"])
+
+            st.dataframe(df)
+
+            st.json(response)
+
+            csv = convert_df(df)
+
+            st.download_button("Press to Download extracted fields",
+                        csv,
+                        f"{summary_file}-extracted-fields.csv"
+                        )
+
+else:
 
     cols = st.columns((0.7,1,2))
     with cols[0]: 
@@ -171,46 +215,44 @@ if is_pdf(uploaded_file):
 
     json_template = json.dumps({"Results": [dict(zip(field_names, field_descriptions))]})
 
-system = f"""
-You are an assistant that given a text extracted using OCR from a document will extract user provided data fields.
-Fields can have multiple formats.
-Write your output as a JSON with the format {json_template}.
-If there is a field that you can not find, set it a null.
-If there is any additional information of feedback from the infromation extraction, add a {{"notes": "<additional-information>"}}
-"""   # noqa E501
-
-import pandas as pd
-
-if st.button("Process", type="primary"):
-    with st.spinner("Extracting fields ..."):
-
-        summary_file, text, pdf_pages = get_text_and_file(uploaded_file,
-                                                               url
-                                                               )
+    system = f"""
+    You are an assistant that given a text extracted using OCR from a document will extract user provided data fields.
+    Fields can have multiple formats.
+    Write your output as a JSON with the format {json_template}.
+    If there is a field that you can not find, set it a null.
+    If there is any additional information of feedback from the infromation extraction, add a {{"notes": "<additional-information>"}}
+    """   # noqa E501
 
 
-        """
-        ### Extraction result
-        """
+    if st.button("Process", type="primary"):
+        with st.spinner("Extracting fields ..."):
 
-        response = extract_unstructured_from_document(text, system, json_template)
+            summary_file, text, pdf_pages = get_text_and_file(uploaded_file,
+                                                                url
+                                                                )
 
-        # Extract the dict from the results key
-        results = json.loads(response)["Results"][0]
+            """
+            ### Extraction result
+            """
 
-        # Create a list of tuples from the dict items
-        tuples = list(results.items())
+            response = extract_unstructured_from_document(text, system, json_template)
 
-        # Create a dataframe from the list of tuples
-        df = pd.DataFrame(tuples, columns=["Field", "Content"])
+            # Extract the dict from the results key
+            results = json.loads(response)["Results"][0]
 
-        st.dataframe(df)
+            # Create a list of tuples from the dict items
+            tuples = list(results.items())
 
-        st.json(response)
+            # Create a dataframe from the list of tuples
+            df = pd.DataFrame(tuples, columns=["Field", "Content"])
 
-        csv = convert_df(df)
+            st.dataframe(df)
 
-        st.download_button("Press to Download extracted fields",
-                    csv,
-                    f"{summary_file}-extracted-fields.csv"
-                    )
+            st.json(response)
+
+            csv = convert_df(df)
+
+            st.download_button("Press to Download extracted fields",
+                        csv,
+                        f"{summary_file}-extracted-fields.csv"
+                        )

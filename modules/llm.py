@@ -90,6 +90,35 @@ def extract_unstructured(extracted_text, system, json_template):
     return response.response
 
 
+def automatic_extract_unstructured(extracted_text):
+    text = extracted_text["content"]
+
+    json_template = json.dumps({
+    "Results" : {"field 1 name":"<field 1 content>", "field 2 name":"<field 2 content>", "field 3 name":"<field 3 content>", "field 4 name":"<field 4 content>", "field n name":"<field n content>"}
+    })
+
+    system = f"""
+    Consider a text input as a collection of unstructured data.
+    Your task is to identify data fields and extract them.
+    Try to be thorough and report as much fields as possible.
+    Interesting fields should be numeric data, listed elements, key entities, dates and the such.
+    Report back a list of n possible data fields with the format {json_template} 
+    """
+
+    from openai import OpenAI
+    client = OpenAI()
+
+    completion = client.chat.completions.create(
+    model="gpt-3.5-turbo-16k",
+    messages=[
+        {"role": "system", "content": system},
+        {"role": "user", "content": text}
+    ]
+    )
+
+    return completion.choices[0].message.content
+
+
 ######################################
 ######## Document Summarizer #########
 ######################################
