@@ -16,6 +16,10 @@ chromadb = "*"
 streamlit = "*"
 bs4 = "*"
 pypdf4 = "*"
+langchain = "*"
+duckduckgo-search = "*"
+streamlit-chat = "*"
+streamlit-audiorec = "*"
 
 [dev-packages]
 
