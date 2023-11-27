@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d7913d72c779e501dd9bb5d8ad12b0bee3792d48d641b8585035c17b1b53983c"
+            "sha256": "a1c989ac3b5f00e3768c00231941a6a6d164d88c90ee45a7ff54df7f7739bd29"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -179,6 +179,19 @@
             "index": "pypi",
             "markers": "python_version >= '3.7' and python_version < '4.0'",
             "version": "==1.12.1"
+        },
+        "azure-cognitiveservices-speech": {
+            "hashes": [
+                "sha256:1ffe02b077efc9e263e2c735ccfd52adbfdb7e5fbbb210cd5359dbf8db3d7a2d",
+                "sha256:8ec1d26967cce17c22e76fa118d693b6133ee73650af1b519db7fb64b5b53a7d",
+                "sha256:a2d3f3e342e35dcbfa38fda626f5276d26373fcde268002e54939edfb21fe523",
+                "sha256:aa56275e106231f5ff629be38eb8dba8932e0c99eec28b74a1f975cdeda3dc43",
+                "sha256:b564b1910e71fcc348b95bcb1efc8ddbd7e55830fec333c8a8bb88dd39fe7393",
+                "sha256:b6c9b26fb64a6923f03bead06f4390a87c62c6a1e2fc173d8c9e6857cfb22d09"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.7'",
+            "version": "==1.33.0"
         },
         "azure-common": {
             "hashes": [
@@ -2168,6 +2181,13 @@
             "markers": "python_version >= '3.7'",
             "version": "==0.8.1b0"
         },
+        "pydub": {
+            "hashes": [
+                "sha256:65617e33033874b59d87db603aa1ed450633288aefead953b30bded59cb599a6",
+                "sha256:980a33ce9949cab2a569606b65674d748ecbca4f0796887fd6f46173a7b0d30f"
+            ],
+            "version": "==0.25.1"
+        },
         "pygments": {
             "hashes": [
                 "sha256:b27c2826c47d0f3219f29554824c30c5e8945175d888647acd804ddd04af846c",
@@ -2925,6 +2945,15 @@
             "index": "pypi",
             "markers": "python_version >= '3.7'",
             "version": "==0.1.3"
+        },
+        "streamlit-audiorecorder": {
+            "hashes": [
+                "sha256:5d028f260ac0f0f114cd8ccefe87e8fbc31db781d52b4d01903f44141410c97e",
+                "sha256:6a85b0a6305ff84c29d0ff0b697c4863cd5f74cc810c7e4628699f3de4922506"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.6'",
+            "version": "==0.0.4"
         },
         "streamlit-chat": {
             "hashes": [

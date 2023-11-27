@@ -20,6 +20,8 @@ langchain = "*"
 duckduckgo-search = "*"
 streamlit-chat = "*"
 streamlit-audiorec = "*"
+azure-cognitiveservices-speech = "*"
+streamlit-audiorecorder = "*"
 
 [dev-packages]
 
