@@ -111,7 +111,7 @@ def extract_unstructured_from_document(text, system, json_template):
 
 
 @st.cache_data()
-def extract_unstructured_from_document(text):
+def automatic_extract_unstructured_from_document(text):
     return automatic_extract_unstructured(text)
 
 
@@ -177,7 +177,7 @@ if on:
             ### Extraction result
             """
 
-            response = extract_unstructured_from_document(text)
+            response = automatic_extract_unstructured_from_document(text)
 
             # Extract the dict from the results key
             results = json.loads(response)["Results"]
