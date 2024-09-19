@@ -26,10 +26,10 @@ def read_environ_params():
 
 
 def read_url_param_values():
-    urlparams = st.experimental_get_query_params()
+
     return {
         **{k: TYPES_STATE.get(k, str)(
-            urlparams.get(k, [v])[0]) for k, v in DEFAULT_STATE.items()},
+            st.query_params.get(k, [v])[0]) for k, v in DEFAULT_STATE.items()},
         **read_environ_params()}
 
 

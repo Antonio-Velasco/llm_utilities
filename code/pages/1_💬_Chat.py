@@ -5,7 +5,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationChain
 from langchain.chat_models import ChatOpenAI
 
-from langchain.tools import DuckDuckGoSearchRun
+from langchain_community.tools import DuckDuckGoSearchRun
 from langchain.agents.openai_assistant import OpenAIAssistantRunnable
 from langchain.agents import AgentExecutor
 
@@ -21,6 +21,7 @@ st.set_page_config(
     page_icon=APP_ICON
 )
 
+
 def configuration():
     # Config
     config = read_url_param_values()
@@ -30,6 +31,7 @@ def configuration():
 
 
 configuration()
+
 
 def setup_chat_session():
     # Storing the chat
@@ -52,6 +54,7 @@ def generate_chat_response(prompt):
     response = agent_executor.invoke({"content": prompt})
     return response["output"]
 
+
 def memory_buffer():
     memory = ConversationBufferMemory(return_messages=True)
 
@@ -65,6 +68,7 @@ def memory_buffer():
 
 config = read_url_param_values()
 
+
 DEFAULT_CONFIG = {
     "temperature": config["temperature"],
     "max_tokens": config["max_tokens"],
@@ -73,6 +77,7 @@ DEFAULT_CONFIG = {
 
 
 st.title("Chat")
+
 
 # Initialize chat history
 if "messages" not in st.session_state:

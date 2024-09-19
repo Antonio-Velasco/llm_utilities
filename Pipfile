@@ -24,6 +24,7 @@ azure-cognitiveservices-speech = "*"
 streamlit-audiorecorder = "*"
 
 [dev-packages]
+ipykernel = "*"
 
 [requires]
 python_version = "3.11"
