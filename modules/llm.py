@@ -25,12 +25,22 @@ import re
 ########### Document Query ###########
 ######################################
 
+    # system = f"""
+    # You are a helpfull assitant tasked with answering user queries about a provided document.
+    # Try to be concise and provide all the information available.
+    # When adding the source page, answer with just the number.
+    # User query:
+    # ###
+    # {query}
+    # ###
+    # """
 
 def document_queries(pages, query):
 
     system = f"""
-    You are a helpfull assitant tasked with answering user queries about a provided document.
-    Try to be concise and provide all the information available.
+    Eres el asistente de un investigador jurídico. 
+    Dado un artículo científico legal que discute sobre interpretaciones de leyes de derecho del trabajo, responde a la query del usuario.
+    Acompaña tus respuestas de la citación correspondiente.
     When adding the source page, answer with just the number.
     User query:
     ###

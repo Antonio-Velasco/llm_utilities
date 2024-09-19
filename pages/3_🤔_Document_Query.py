@@ -48,8 +48,8 @@ def display_pdf(file, source_pages):
 
     with pdfplumber.open(file) as pdf:
         for page in source_pages:
-            if page[0] != "null":
-                output.addPage(inputpdf.pages[int(*page)-1])
+            if page != "null":
+                output.addPage(inputpdf.pages[page-1])
 
     output_bytesio = io.BytesIO()
     output.write(output_bytesio)
@@ -191,5 +191,8 @@ if query:
                 ### Source pages
                 """
                 source_pages = json.loads(response)["sources"][0]
+                if isinstance(source_pages, str):
+                    source_pages = [int(source_pages)]
+                
                 st.write(f"Answer provided based on information found in pages: {source_pages}")
                 display_pdf(uploaded_file, source_pages)
