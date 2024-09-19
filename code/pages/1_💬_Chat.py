@@ -1,9 +1,6 @@
 import streamlit as st
 
-from streamlit_chat import message
 from langchain.memory import ConversationBufferMemory
-from langchain.chains import ConversationChain
-from langchain.chat_models import ChatOpenAI
 
 from langchain_community.tools import DuckDuckGoSearchRun
 from langchain.agents.openai_assistant import OpenAIAssistantRunnable
@@ -44,7 +41,8 @@ def generate_chat_response(prompt):
 
     agent = OpenAIAssistantRunnable.create_assistant(
         name="langchain assistant tool",
-        instructions="You are a personal assistant. You can search the internet to answer user questions.",
+        instructions="""You are a personal assistant.
+            You can search the internet to answer user questions.""",
         tools=tools,
         model=config["model"],
         as_agent=True,
@@ -88,7 +86,6 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-import streamlit as st
 
 # React to user input
 if prompt := st.chat_input("What is up?"):
@@ -104,4 +101,6 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("assistant"):
         st.markdown(response)
     # Add assistant response to chat history
-    st.session_state.messages.append({"role": "assistant", "content": response})
+    st.session_state.messages.append(
+        {"role": "assistant", "content": response}
+        )
