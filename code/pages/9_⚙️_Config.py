@@ -31,8 +31,7 @@ for k, v in config.items():
                   on_change=partial(set_url_param_value, key=k)
                   )
 
-# models = list(sorted([m["id"] for m in openai.Model.list()["data"]]))
-models = ["gpt-3.5-turbo", "gpt-4"]
+models = ["gpt-3.5-turbo", "gpt-4", "gpt-4o"]
 default_model = models.index(config.get("model") or "gpt-3.5-turbo")
 
 selected_model = st.selectbox("OpenAI Model",

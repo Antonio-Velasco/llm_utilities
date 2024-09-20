@@ -35,8 +35,5 @@ def read_url_param_values():
 
 def set_url_param_value(key):
     current = read_url_param_values()
-    st.experimental_set_query_params(
-        **{
-            **current,
-            **{key: st.session_state.get(key, current[key])}}
-    )
+    for key in current:
+        st.query_params.key = current[key]
