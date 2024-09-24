@@ -51,7 +51,7 @@ st.markdown(
     #### Future updates
     * *Summary Tool* - (To be updated & documented)
     * *Document Query* - (To be documented)
-    * *Unstrusctured Data Extraction* - (To be updated & documented)
+    * *Unstructured Data Extraction* - (To be updated & documented)
     * *Table Agent* - (To be updated & documented)
     * *Text Composer with memory* - (WIP)
 
