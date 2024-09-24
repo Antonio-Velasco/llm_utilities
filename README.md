@@ -4,8 +4,8 @@
 powered by a LLM (Large Language Model). They provide quality of life
 and/or improve efficiency in comon day to day office tasks.
 
-I started developing some of these as either learning exercises,
-for my own personal use or as examples of what can be done in the industry.
+I started developing some of these as either learning exercises, 
+for my own personal use or as demo examples of what can be done for the industry.
 
 The version published here are updated for simplicity and easiness of use.
 Conceived as a showcase and how-to example.
