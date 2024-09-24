@@ -25,10 +25,13 @@ the libraries in 'requirements.txt'
 
 ## Tools description
 #### 🗨️ Chat agent
+
 The chat agent is a simple bot interface agent between the LLM and you.
 It has access to a toolset. Currently the toolset includes a web search
 capability powered by **DuckDuckGO**.
 This makes it able to reply with reliable and updated data.
+
+![](data\media\chat_agent.gif)
 
 #### Future updates
 * *Summary Tool* - (To be updated & documented)
