@@ -2,7 +2,7 @@
 
 **LLM utility tools** is a set of simple techniques and applications
 powered by a LLM (Large Language Model). They provide quality of life
-and/or improve efficiency in comon day to day office tasks.
+and/or improve efficiency in common day to day office tasks.
 
 I started developing some of these as either learning exercises, 
 for my own personal use or as demo examples of what can be done for the industry.
