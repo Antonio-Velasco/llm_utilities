@@ -16,7 +16,7 @@ from Home import APP_TITLE, APP_ICON
 
 
 st.set_page_config(
-    page_title=f"{APP_TITLE} - FIT & LOT extraction",
+    page_title=f"{APP_TITLE} - Document Summarizer",
     page_icon=APP_ICON
 )
 
@@ -76,7 +76,7 @@ def process_url(url):
     return text
 
 
-@st.cache_data()
+@st.cache_resource()
 def summarize_document(text, number_of_chunks):
     return summarize_text(text, number_of_chunks, include_costs=True)
 
