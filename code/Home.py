@@ -34,7 +34,7 @@ st.markdown(
     ### Installation
     - Git clone in your local machine.
     - Create a '.env' file with: SECRET_OPENAI_API_KEY=[YOUR_KEY_HERE]
-        - Alternatively, skip this step and use streamlit's config page. 
+        - Alternatively, skip this step and use streamlit's config page.
     - Create a virtual environment (pipenv files available) and install
     the libraries in 'requirements.txt'
     - In the terminal run the command (either):
@@ -48,8 +48,14 @@ st.markdown(
     capability powered by **DuckDuckGO**.
     This makes it able to reply with reliable and updated data.
 
+    #### 📃 Document Summarizer
+
+    The Document Summarizer accepts a drag-and-drop PDF or a URL.
+    It extracts the text from the source and then sends it to a
+    LLM chain that uses Map-Reduce to synthetise the content down
+    to 3 bullet points per number of paragraphs instructed.
+
     #### Future updates
-    * *Summary Tool* - (To be updated & documented)
     * *Document Query* - (To be documented)
     * *Unstructured Data Extraction* - (To be updated & documented)
     * *Table Agent* - (To be updated & documented)
