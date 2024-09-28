@@ -32,7 +32,7 @@ capability powered by **DuckDuckGO**.
 This makes it able to reply with reliable and updated data.
 
 ![](data\media\chat_agent.gif)
-![](https://github.com/Antonio-Velasco/llm_utilities/tree/update/2_doc_summary/data/media/chat_agent.gif)
+![](/data/media/chat_agent.gif)
 
 #### 📃 Document Summarizer
 
@@ -42,7 +42,8 @@ to synthetise the content down to 3 bullet points per number of paragraphs
 instructed.  
 
 ![](data\media\doc_summarizer.gif)
-![](https://github.com/Antonio-Velasco/llm_utilities/tree/update/2_doc_summary/data/media/doc_summarizer.gif)
+
+![](https://raw.githubusercontent.com/Antonio-Velasco/llm_utilities/tree/update/2_doc_summary/data/media/doc_summarizer.gif)
 
 #### Future updates
 * *Document Query* - (To be documented)
