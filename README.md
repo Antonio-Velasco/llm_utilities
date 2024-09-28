@@ -31,7 +31,6 @@ It has access to a toolset. Currently the toolset includes a web search
 capability powered by **DuckDuckGO**.
 This makes it able to reply with reliable and updated data.
 
-![](data\media\chat_agent.gif)
 ![](/data/media/chat_agent.gif)
 
 #### 📃 Document Summarizer
@@ -41,9 +40,7 @@ the text from the source and then sends it to a LLM chain that uses Map-Reduce
 to synthetise the content down to 3 bullet points per number of paragraphs 
 instructed.  
 
-![](data\media\doc_summarizer.gif)
-
-![](https://raw.githubusercontent.com/Antonio-Velasco/llm_utilities/tree/update/2_doc_summary/data/media/doc_summarizer.gif)
+![](/data/media/doc_summarizer.gif)
 
 #### Future updates
 * *Document Query* - (To be documented)
