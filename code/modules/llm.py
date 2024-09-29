@@ -2,6 +2,7 @@ from langchain import OpenAI, PromptTemplate, LLMChain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.combine_documents.map_reduce import MapReduceDocumentsChain  # noqa E501
 from langchain.chains.combine_documents.stuff import StuffDocumentsChain
+from langchain_core.documents.base import Document
 import itertools as it
 from langchain.callbacks import get_openai_callback
 
@@ -32,7 +33,10 @@ reduce_prompt_template = PromptTemplate(template=reduce_prompt,
                                         input_variables=["text"])
 
 
-def summarization_chain(verbose=False):
+def summarization_chain(
+        verbose: bool = False
+        ) -> MapReduceDocumentsChain:
+
     llm = OpenAI(temperature=0, max_tokens=512)
 
     map_chain = LLMChain(llm=llm, prompt=map_prompt_template, verbose=verbose)
@@ -56,10 +60,13 @@ def summarization_chain(verbose=False):
     return mapreduce_chain
 
 
-def split_text(text,
-               separators=["\n\n", "\n", " "],
-               chunk_size=3000,
-               chunk_overlap=500):
+def split_text(
+        text: str,
+        separators: list[str] = ["\n\n", "\n", " "],
+        chunk_size: int = 3000,
+        chunk_overlap: int = 500
+        ) -> list[Document]:
+
     text_splitter = RecursiveCharacterTextSplitter(
         separators=separators + [""],
         chunk_size=chunk_size,
@@ -68,7 +75,10 @@ def split_text(text,
     return docs
 
 
-def split_in_chuncks(docs, number_of_chunks):
+def split_in_chuncks(
+        docs: list[Document],
+        number_of_chunks: int
+        ) -> list[list[Document]]:
 
     chunk_size = (len(docs) // number_of_chunks)
 
@@ -82,7 +92,12 @@ def split_in_chuncks(docs, number_of_chunks):
     return groups
 
 
-def summarize_text(text, number_of_chunks, include_costs=False):
+def summarize_text(
+        text: str,
+        number_of_chunks: int,
+        include_costs: bool = False
+        ) -> str:
+
     with get_openai_callback() as cb:
         chain = summarization_chain()
         docs = split_text(text)
