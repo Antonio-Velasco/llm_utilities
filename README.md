@@ -31,10 +31,18 @@ It has access to a toolset. Currently the toolset includes a web search
 capability powered by **DuckDuckGO**.
 This makes it able to reply with reliable and updated data.
 
-![](data\media\chat_agent.gif)
+![](/data/media/chat_agent.gif)
+
+#### 📃 Document Summarizer
+
+The Document Summarizer accepts a drag-and-drop PDF or a URL. It extracts
+the text from the source and then sends it to a LLM chain that uses Map-Reduce
+to synthetise the content down to 3 bullet points per number of paragraphs 
+instructed.  
+
+![](/data/media/doc_summarizer.gif)
 
 #### Future updates
-* *Summary Tool* - (To be updated & documented)
 * *Document Query* - (To be documented)
 * *Unstructured Data Extraction* - (To be updated & documented)
 * *Table Agent* - (To be updated & documented)

@@ -116,6 +116,9 @@ ENV/
 env.bak/
 venv.bak/
 
+#Dev Notebooks
+dev.ipynb
+
 # Spyder project settings
 .spyderproject
 .spyproject
