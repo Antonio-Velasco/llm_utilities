@@ -1,14 +1,36 @@
-from langchain import OpenAI, PromptTemplate, LLMChain
+from langchain_community.llms import OpenAI
+from langchain.chains import LLMChain
+from langchain_core.prompts import PromptTemplate
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.combine_documents.map_reduce import MapReduceDocumentsChain  # noqa E501
 from langchain.chains.combine_documents.stuff import StuffDocumentsChain
 from langchain.chains import create_qa_with_sources_chain, RetrievalQA
 from langchain_core.documents.base import Document
 import itertools as it
-from langchain.callbacks import get_openai_callback
-from langchain.chat_models import ChatOpenAI
-from langchain.embeddings import SentenceTransformerEmbeddings
-from langchain.vectorstores import Chroma
+from langchain_community.callbacks import get_openai_callback
+from langchain_community.chat_models import ChatOpenAI
+from langchain_community.embeddings import SentenceTransformerEmbeddings
+from langchain_community.vectorstores import Chroma
+
+import openai
+
+from azure.core.credentials import AzureKeyCredential  # noqa E402
+from azure.ai.formrecognizer import DocumentAnalysisClient  # noqa E402
+from code.modules.state import read_url_param_values
+
+import os
+import io
+
+
+def configuration():
+    # Config
+    config = read_url_param_values()
+    api_key = config["openai_api_key"]
+    openai.api_key = api_key
+    os.environ["OPENAI_API_KEY"] = api_key
+
+
+configuration()
 
 
 #######################
@@ -159,3 +181,36 @@ def document_queries(pages, query):
     response = retrieval_qa.run(system)
 
     return response
+
+
+def base_form_recogniser(pdf_bytes: io.BytesIO) -> dict:
+    # OCR from base form recogniser
+    config = read_url_param_values()
+    credential = AzureKeyCredential(config["form_key"])
+    document_analysis_client = DocumentAnalysisClient(config["form_endpoint"],
+                                                      credential)
+    document = pdf_bytes.getvalue()
+
+    # Start the document analysis
+    poller = document_analysis_client.begin_analyze_document(
+        "prebuilt-document", document, polling_interval=5)
+
+    # Get the result
+    result = poller.result()
+    return result
+
+
+def extract_text(file: io.BytesIO) -> list[Document]:
+    result = base_form_recogniser(file)
+    pages = []
+    for page in result.pages:
+        doc_with_metadata = Document(
+            page_content=("\n".join([line.content for line in page.lines])),
+            metadata={"page": f"{page.page_number}"})
+        pages.append(doc_with_metadata)
+
+    return pages
+
+
+def is_pdf(file: io.BytesIO) -> bool:
+    return file is not None and file.type == "application/pdf"
