@@ -4,8 +4,6 @@ import requests
 from bs4 import BeautifulSoup
 import streamlit as st
 
-import pdfplumber
-
 import openai
 import base64
 
@@ -47,10 +45,9 @@ def display_pdf(file, source_pages):
     inputpdf = PdfFileReader(file)
     output = PdfFileWriter()
 
-    with pdfplumber.open(file) as pdf:
-        for page in source_pages:
-            if page != "null":
-                output.addPage(inputpdf.pages[page-1])
+    for page in source_pages:
+        if page != "null":
+            output.addPage(inputpdf.pages[page-1])
 
     output_bytesio = io.BytesIO()
     output.write(output_bytesio)
