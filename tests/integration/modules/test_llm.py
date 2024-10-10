@@ -1,7 +1,8 @@
 import openai
 import os
-
-from code.modules.state import read_url_param_values
+from modules.llm import extract_text
+from langchain.schema.document import Document
+from modules.state import read_url_param_values
 
 
 def configuration():
@@ -13,3 +14,10 @@ def configuration():
 
 
 configuration()
+
+
+def test_extract_text(pdf_example):
+    t = extract_text(pdf_example)
+    assert len(t) == 14
+    assert type(t) is list
+    assert type(t[0]) is Document

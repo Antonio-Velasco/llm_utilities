@@ -1,13 +1,9 @@
 import pytest
-from code.modules.llm import (
+from modules.llm import (
     split_text,
     split_in_chuncks,
-    summarize_text,
-    extract_text,
-    is_pdf
+    summarize_text
     )
-
-from langchain.schema.document import Document
 
 
 @pytest.fixture()
@@ -38,19 +34,3 @@ def test_split_in_chunks(glacier_wiki_text):
 def test_summarize_text(glacier_wiki_text):
     t = summarize_text(glacier_wiki_text["text"], 1)
     assert len(t) == 265
-
-
-def test_extract_text(pdf_example):
-    t = extract_text(pdf_example)
-    assert len(t) == 14
-    assert type(t) is list
-    assert type(t[0]) is Document
-
-
-def test_is_pdf(pdf_example):
-    t = is_pdf(pdf_example)
-    u = is_pdf("string")
-    v = is_pdf()
-    assert t
-    assert not u
-    assert not v

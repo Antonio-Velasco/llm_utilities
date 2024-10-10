@@ -16,7 +16,7 @@ import openai
 
 from azure.core.credentials import AzureKeyCredential  # noqa E402
 from azure.ai.formrecognizer import DocumentAnalysisClient  # noqa E402
-from code.modules.state import read_url_param_values
+from modules.state import read_url_param_values
 
 import os
 import io
