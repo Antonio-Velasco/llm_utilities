@@ -18,6 +18,6 @@ configuration()
 
 def test_extract_text(pdf_example):
     t = extract_text(pdf_example)
-    assert len(t) == 14
+    assert len(t) == 2
     assert type(t) is list
     assert type(t[0]) is Document

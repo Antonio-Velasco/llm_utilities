@@ -12,9 +12,8 @@ from azure.ai.formrecognizer import DocumentAnalysisClient  # noqa E402
 
 from PyPDF4 import PdfFileReader, PdfFileWriter
 
-from modules.llm import document_queries
+from modules.llm import document_queries, is_pdf, extract_text
 from modules.state import read_url_param_values
-from langchain.schema.document import Document
 
 import os
 import io
@@ -59,39 +58,6 @@ def display_pdf(file, source_pages):
     pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="700" height="1000" type="application/pdf">'  # noqa E501
     # Render the tag in Streamlit
     st.markdown(pdf_display, unsafe_allow_html=True)
-
-
-def base_form_recogniser(pdf_bytes: io.BytesIO) -> dict:
-    # OCR from base form recogniser
-    config = read_url_param_values()
-    credential = AzureKeyCredential(config["form_key"])
-    document_analysis_client = DocumentAnalysisClient(config["form_endpoint"],
-                                                      credential)
-    document = pdf_bytes.getvalue()
-
-    # Start the document analysis
-    poller = document_analysis_client.begin_analyze_document(
-        "prebuilt-document", document, polling_interval=5)
-
-    # Get the result
-    result = poller.result()
-    return result
-
-
-def extract_text(file):
-    result = base_form_recogniser(file)
-    pages = []
-    for page in result.pages:
-        doc_with_metadata = Document(
-            page_content=("\n".join([line.content for line in page.lines])),
-            metadata={"page": f"{page.page_number}"})
-        pages.append(doc_with_metadata)
-
-    return pages
-
-
-def is_pdf(file):
-    return file is not None and file.type == "application/pdf"
 
 
 @st.cache_data()
