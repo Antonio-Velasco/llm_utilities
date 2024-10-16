@@ -1,5 +1,5 @@
 import pytest
-from code.modules.llm import (
+from modules.llm import (
     split_text,
     split_in_chuncks,
     summarize_text
