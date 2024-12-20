@@ -42,8 +42,19 @@ instructed.
 
 ![](/data/media/doc_summarizer.gif)
 
+#### 🤔 Document Query
+
+Document Query accepts a drag-and-drop PDF or a pdf URL.
+It uses Azure’s Document Intelligence to extract all text and
+split it into pages that are indexed using ChromaDB.
+The user can then ask any question about the content of the document.
+The query will be matched against the indexed pages, and the one
+containing the answer will be brought to an LLM as context.
+The user will receive the answer and a display of the page for fact-checking.
+
+![](/data/media/doc_query.gif)
+
 #### Future updates
-* *Document Query* - (To be documented)
 * *Unstructured Data Extraction* - (To be updated & documented)
 * *Table Agent* - (To be updated & documented)
 * *Text Composer with memory* - (WIP)
